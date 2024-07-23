@@ -1,5 +1,6 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppController } from './app.controller'
@@ -8,12 +9,17 @@ import { CategoryModule } from './category/category.module'
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: 'postgres://postgres:Vin@0920@localhost:5432/devshop',
-      autoLoadEntities: true,
-      // Não é recomendado para versão em PROD -> utilizar migrations
-      synchronize: true,
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get('DATABASE_URL'),
+        autoLoadEntities: true,
+        // Não é recomendado para versão em PROD -> utilizar migrations
+        synchronize: true,
+      }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

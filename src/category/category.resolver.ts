@@ -1,13 +1,23 @@
-import { Query, Resolver } from '@nestjs/graphql'
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { CategoryMapper } from './category.mapper'
 import { CategoryService } from './category.service'
-import { Category } from './dto/category'
+import { CategoryPublic } from './dto/category'
+import { CategoryCreateInput } from './dto/category-create.input'
 
-@Resolver(of => Category)
+@Resolver(() => CategoryPublic)
 export class CategoryResolver {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Query(returns => [Category], { name: 'getAllCategories' })
-  async getAllCategories(): Promise<Category[]> {
+  @Query(() => [CategoryPublic], { name: 'getAllCategories' })
+  async getAllCategories(): Promise<CategoryPublic[]> {
     return await this.categoryService.findAll()
+  }
+
+  @Mutation(() => CategoryPublic, { name: 'createCategory' })
+  async createCategory(
+    @Args('input')
+    input: CategoryCreateInput,
+  ): Promise<CategoryPublic> {
+    return await this.categoryService.create(CategoryMapper.toEntity(input))
   }
 }
