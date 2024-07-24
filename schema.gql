@@ -9,14 +9,23 @@ type Category {
 }
 
 type Query {
+  getCategoryById(id: String!): Category!
   getAllCategories: [Category!]!
 }
 
 type Mutation {
   createCategory(input: CategoryCreateInput!): Category!
+  deleteCategory(id: String!): Boolean!
+  updateCategory(input: CategoryUpdateInput!): Category!
 }
 
 input CategoryCreateInput {
+  name: String!
+  slug: String!
+}
+
+input CategoryUpdateInput {
+  id: String!
   name: String!
   slug: String!
 }
